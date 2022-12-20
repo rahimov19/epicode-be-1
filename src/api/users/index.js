@@ -44,21 +44,21 @@ usersRouter.get("/authors", (req, res) => {
 
 usersRouter.get("/authors/:userId", (req, res) => {
   const userId = req.params.userId;
-  let usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
-  const user = (usersArray = usersArray.find((user) => user.id === userId));
-  res.send(user);
+  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const foundUser = usersArray.find((user) => user.id === userId);
+  res.send(foundUser);
 });
 
 usersRouter.put("/authors/:userId", (req, res) => {
-  let usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
   const index = usersArray.findIndex((user) => user.id === req.params.userId);
-  let oldUser = usersArray[index];
-  const updatedUser = (usersArray = {
+  const oldUser = usersArray[index];
+  const updatedUser = {
     ...oldUser,
     ...req.body,
     updatedAt: new Date(),
-  });
-
+  };
+  usersArray[index] = updatedUser;
   fs.writeFileSync(usersJSONPath, JSON.stringify(usersArray));
   res.send(updatedUser);
 });
