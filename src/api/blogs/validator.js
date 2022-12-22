@@ -19,6 +19,7 @@ const blogSchema = {
 export const checkBlogsSchema = checkSchema(blogSchema);
 export const triggerBadRequest = (req, res, next) => {
   const errors = validationResult(req);
+  console.log(errors);
   if (!errors.isEmpty()) {
     next(
       createHttpError(400, "Errors during book validation", {

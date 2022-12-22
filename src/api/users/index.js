@@ -3,6 +3,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
+import { getUsers, writeUsers } from "../../lib/fs-tools.js";
 
 const usersRouter = express.Router();
 
@@ -11,7 +12,7 @@ const usersJSONPath = join(
   "users.json"
 );
 
-usersRouter.post("", (req, res) => {
+usersRouter.post("/", async (req, res) => {
   const newUser = {
     ...req.body,
     createdAt: new Date(),
@@ -19,38 +20,39 @@ usersRouter.post("", (req, res) => {
     avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
   };
 
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const usersArray = getUsers();
   usersArray.push(newUser);
-  fs.writeFileSync(usersJSONPath, JSON.stringify(usersArray));
+  writeUsers(usersArray);
   res.status(201).send({
     id: newUser.id,
   });
 });
 
-usersRouter.post("/checkEmail", (req, res) => {
+usersRouter.post("/checkEmail", async (req, res) => {
   const emailToCheck = req.body.email;
 
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const usersArray = getUsers();
+
   usersArray.find((user) => user.email === emailToCheck)
     ? res.status(201).send("email is already used")
     : res.status(201).send("email is not used");
 });
 
-usersRouter.get("", (req, res) => {
-  const fileContentAsABuffer = fs.readFileSync(usersJSONPath);
-  const usersArray = JSON.parse(fileContentAsABuffer);
+usersRouter.get("/", async (req, res) => {
+  const usersArray = await getUsers();
+  console.log(usersArray);
   res.send(usersArray);
 });
 
-usersRouter.get("/:userId", (req, res) => {
+usersRouter.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+  const usersArray = getUsers();
   const foundUser = usersArray.find((user) => user.id === userId);
   res.send(foundUser);
 });
 
-usersRouter.put("/:userId", (req, res) => {
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
+usersRouter.put("/:userId", async (req, res) => {
+  const usersArray = getUsers();
   const index = usersArray.findIndex((user) => user.id === req.params.userId);
   const oldUser = usersArray[index];
   const updatedUser = {
@@ -59,16 +61,18 @@ usersRouter.put("/:userId", (req, res) => {
     updatedAt: new Date(),
   };
   usersArray[index] = updatedUser;
-  fs.writeFileSync(usersJSONPath, JSON.stringify(usersArray));
+  writeUsers(usersArray);
+
   res.send(updatedUser);
 });
 
-usersRouter.delete("/:userId", (req, res) => {
+usersRouter.delete("/:userId", async (req, res) => {
   const usersArray = JSON.parse(fs.readFileSync(usersJSONPath));
   const remainingUsers = usersArray.filter(
     (user) => user.id !== req.params.userId
   );
-  fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
+  writeUsers(remainingUsers);
+
   res.send();
 });
 
