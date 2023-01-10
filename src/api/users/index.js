@@ -31,7 +31,7 @@ usersRouter.post("/", async (req, res) => {
 usersRouter.post("/checkEmail", async (req, res) => {
   const emailToCheck = req.body.email;
 
-  const usersArray = getUsers();
+  const usersArray = await getUsers();
 
   usersArray.find((user) => user.email === emailToCheck)
     ? res.status(201).send("email is already used")
@@ -40,19 +40,18 @@ usersRouter.post("/checkEmail", async (req, res) => {
 
 usersRouter.get("/", async (req, res) => {
   const usersArray = await getUsers();
-  console.log(usersArray);
   res.send(usersArray);
 });
 
 usersRouter.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
-  const usersArray = getUsers();
+  const usersArray = await getUsers();
   const foundUser = usersArray.find((user) => user.id === userId);
   res.send(foundUser);
 });
 
 usersRouter.put("/:userId", async (req, res) => {
-  const usersArray = getUsers();
+  const usersArray = await getUsers();
   const index = usersArray.findIndex((user) => user.id === req.params.userId);
   const oldUser = usersArray[index];
   const updatedUser = {
