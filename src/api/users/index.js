@@ -17,15 +17,12 @@ usersRouter.post("/", async (req, res) => {
     ...req.body,
     createdAt: new Date(),
     id: uniqid(),
-    avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
   };
 
   const usersArray = getUsers();
   usersArray.push(newUser);
   writeUsers(usersArray);
-  res.status(201).send({
-    id: newUser.id,
-  });
+  res.status(201).send(newUser.id);
 });
 
 usersRouter.post("/checkEmail", async (req, res) => {

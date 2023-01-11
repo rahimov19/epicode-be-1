@@ -36,7 +36,7 @@ const corsOpts = {
   },
 };
 server.use(express.static(publicFolderPath));
-server.use(cors(corsOpts));
+server.use(cors());
 server.use(express.json());
 
 server.use("/authors", usersRouter);
