@@ -1,7 +1,7 @@
 import imageToBase64 from "image-to-base64";
 import PdfPrinter from "pdfmake";
 
-export const getPDFReadableStream = async (postsArray) => {
+export const getPDFReadableStream = async (blog) => {
   async function createBase64Img(url) {
     let base64Encoded = await imageToBase64(url);
     return "data:image/jpeg;base64, " + base64Encoded;
@@ -19,24 +19,19 @@ export const getPDFReadableStream = async (postsArray) => {
   const printer = new PdfPrinter(fonts);
 
   const docDefinition = {
-    content: postsArray.map((post) => {
-      return [
-        { text: post.author.name, style: "header", margin: [0, 15, 0, 0] },
-        { text: post.title, style: "subheader", margin: [0, 2] },
-        { text: post.category, style: "quote", margin: [0, 2] },
-        post.content,
-        { image: "postImage", width: 150, height: 150 },
-      ];
-    }),
-
+    content: [
+      { text: blog.author.name, style: "header", margin: [0, 15, 0, 0] },
+      { text: blog.title, style: "subheader", margin: [0, 2] },
+      { text: blog.category, style: "quote", margin: [0, 2] },
+      blog.content,
+      { image: "postImage", width: 200, height: 150, margin: [0, 10, 0, 0] },
+    ],
     images: {
-      postImage: await createBase64Img(
-        "https://res.cloudinary.com/dp2c7c7ji/image/upload/v1673350955/cld-sample.jpg"
-      ),
+      postImage: await createBase64Img(blog.cover),
     },
     styles: {
       header: {
-        fontSize: 15,
+        fontSize: 20,
         bold: true,
         color: "#123123",
       },

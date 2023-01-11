@@ -19,7 +19,7 @@ usersRouter.post("/", async (req, res) => {
     id: uniqid(),
   };
 
-  const usersArray = getUsers();
+  const usersArray = await getUsers();
   usersArray.push(newUser);
   writeUsers(usersArray);
   res.status(201).send(newUser.id);
