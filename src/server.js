@@ -5,6 +5,8 @@ import listEndpoints from "express-list-endpoints";
 import blogsRouter from "./api/blogs/index.js";
 import usersRouter from "./api/users/index.js";
 import filesRouter from "./api/files/index.js";
+import swagger from "swagger-ui-express";
+import yaml from "yamljs";
 import { join } from "path";
 import {
   genericErrorHandler,
@@ -16,6 +18,7 @@ import cors from "cors";
 import createHttpError from "http-errors";
 
 const publicFolderPath = join(process.cwd(), "./public");
+const yamlFile = yaml.load(join(process.cwd(), "./src/docs/apiDocs.yml"));
 
 const server = express();
 
@@ -42,6 +45,7 @@ server.use(express.json());
 server.use("/authors", usersRouter);
 server.use("/blogs", blogsRouter);
 server.use("/files", filesRouter);
+server.use("/docs", swagger.serve, swagger.setup(yamlFile));
 
 server.use(badRequestHanlder);
 server.use(unauthorizedHandler);

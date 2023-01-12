@@ -1,0 +1,423 @@
+openapi: 3.0.1
+info:
+  title: Strive Blogs
+  description: We post about everything
+  version: 1.0.1
+servers:
+  - url: http://localhost:3001
+    variables: {}
+    description: Local server
+  - url: https://epicode-be-1-production.up.railway.app
+    variables: {}
+    description: Cloud server
+tags:
+  - name: blogs
+    description: Operations about blogs
+  - name: users
+    description: Operations about users
+  - name: files
+    description: Operation with files
+paths:
+  /blogs:
+    get:
+      tags:
+        - blogs
+      summary: Returns a list of blogs.
+      description: Optional extended description in CommonMark or HTML.
+       responses:
+        "200":
+          description: A list of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/blog"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    post:
+      tags:
+        - blogs
+      summary: Create a new blog
+      description: Adds a new blog
+      requestBody:
+        description: The body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/blog"
+      responses:
+        "201":
+          description: The ID of the newly created blog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+  /blogs/{blogId}:
+    get:
+      tags:
+        - blogs
+      summary: Get by Id
+      description: Retrieve single blog
+      parameters:
+        - in: path
+          name: blogId
+          required: true
+          schema:
+            type: string
+          description: The ID of the blog to retrieve
+      responses:
+        "200":
+          description: The single blog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/blog"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    put:
+      tags:
+        - blogs
+      description: Update an existing blog
+      summary: Update
+      parameters:
+        - in: path
+          name: blogId
+          required: true
+          schema:
+            type: string
+          description: The ID of the blog to update
+      requestBody:
+        description: Fields to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/blog"
+      responses:
+        "200":
+          description: A list of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/blog"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    delete:
+      tags:
+        - blogs
+      summary: Delete
+      description: Delete a specific blog by ID
+      parameters:
+        - in: path
+          name: blogId
+          required: true
+          schema:
+            type: string
+          description: The ID of the blog to delete
+      responses:
+        "204":
+          description: Empty Response
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+  
+  /authors:
+    get:
+      tags:
+        - users
+      summary: Returns a list of users.
+      description: Optional extended description in CommonMark or HTML.
+      responses:
+        "200":
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    post:
+      summary: Create
+      description: Add a new user
+      requestBody:
+        description: The object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: The ID of the newly created blog
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+  /{userId}:
+    summary: Specific user related endpoints
+    get:
+      summary: Get by Id
+      description: Retrieve single User's data
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to show
+      operationId: ""
+      responses:
+        "200":
+          description: The User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+    put:
+      summary: Update
+      description: Update an existing User
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to change data
+      requestBody:
+        description: The object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: The modified User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+    delete:
+      summary: Delete
+      description: Delete a specific User by Id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to delete
+      operationId: ""
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+
+  /files/:postId/blog:
+    post:
+      description: Uploads cover to blog
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Blog to Add cover to
+      
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ok
+        "404":
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - files
+  /files/:postId/user:
+    post:
+      description: Uploads avatar to author
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Blog to Add user's Avatar to
+      tags:
+        - files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ok
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /files/:postId/pdf:
+    get:
+      description: Gets a pdf file of post
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Blog to get pdf file of
+      tags:
+        - files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ok
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /files/blogsCSV:
+    get:
+      description: Gets a csv file of all blogs
+      
+      tags:
+        - files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ok
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  responses:
+    NotFound:
+      description: The specific resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Some problems with your request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Bearer token missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    GenericServerError:
+      description: A problem on the server occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    blog:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        cover:
+          type: string
+        content:
+          type: number
+        readTime:
+         value: 
+            type: number
+         unit:
+            type: string
+        author: 
+          name:
+            type: string
+          avatar:
+            type: string
+        id:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
