@@ -51,6 +51,8 @@ blogsRouter.get("/", async (req, res, next) => {
 blogsRouter.post("/email", async (req, res, next) => {
   try {
     const { email } = req.body;
+    console.log(email, "email");
+    console.log(req.body, "body");
     await sendVerificationEmail(email);
     res.send();
   } catch (error) {
