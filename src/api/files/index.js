@@ -8,9 +8,11 @@ import {
   writeUsers,
   getBlogs,
   writeBlogs,
+  getBlogsJsonReadableStream,
 } from "../../lib/fs-tools.js";
 import { pipeline } from "stream";
 import { createGzip } from "zlib";
+import json2csv from "json2csv";
 import { getPDFReadableStream } from "../../lib/pdf-tools.js";
 const filesRouter = express.Router();
 
@@ -81,6 +83,22 @@ filesRouter.get("/:postId/pdf", async (req, res, next) => {
     pipeline(source, destination, (err) => {
       if (err) console.log(err);
     });
+  }
+});
+
+filesRouter.get("/blogsCSV", (req, res, next) => {
+  try {
+    res.setHeader("Content-Disposition", "attachment; filename=blogs.csv");
+    const source = getBlogsJsonReadableStream();
+    const transform = new json2csv.Transform({
+      fields: ["author.name", "category", "title", "content"],
+    });
+    const destination = res;
+    pipeline(source, transform, destination, (err) => {
+      if (err) console.log(err);
+    });
+  } catch (error) {
+    next(error);
   }
 });
 export default filesRouter;

@@ -3,6 +3,7 @@ import uniqid from "uniqid";
 import httpErrors from "http-errors";
 import { checkBlogsSchema, triggerBadRequest } from "./validator.js";
 import { getBlogs, writeBlogs as postBlogs } from "../../lib/fs-tools.js";
+import { sendVerificationEmail } from "../../lib/email-tools.js";
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors;
 
@@ -47,7 +48,15 @@ blogsRouter.get("/", async (req, res, next) => {
     next(error);
   }
 });
-
+blogsRouter.post("/email", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await sendVerificationEmail(email);
+    res.send();
+  } catch (error) {
+    next(error);
+  }
+});
 blogsRouter.get("/:blogId", async (req, res, next) => {
   try {
     const blogsArray = await getBlogs();
